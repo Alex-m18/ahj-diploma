@@ -1,0 +1,21 @@
+image: Ubuntu1804
+stack: "node 10"
+branches:
+  only:
+    - master
+install:
+  - yarn install
+build: off
+build_script:
+  - yarn build
+test_script:
+  - yarn test
+deploy_script:
+  - git config --global credential.helper store
+  - git config --global user.name AppVeyor
+  - git config --global user.email ci@appveyor.com
+  - echo "https://$GITHUB_TOKEN:x-oauth-basic@github.com" > "$HOME/.git-credentials"
+  - npx push-dir --dir=dist --branch=gh-pages --force --verbose
+cache:
+  - node_modules
+  
