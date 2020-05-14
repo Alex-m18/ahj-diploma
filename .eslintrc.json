@@ -1,7 +1,5 @@
 {
-  "env": {
-      "browser": true,
-      "es6": true,
+  "env": { 
       "jest": true
   },
   "extends": [

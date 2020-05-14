@@ -1,0 +1,74 @@
+{
+  "users": [
+    {
+      "name": "demo",
+      "password": "demo",
+      "id": "1",
+      "sessions": []
+    }
+  ],
+  "posts": [
+    {
+      "id": "1",
+      "user_id": "1",
+      "created_at": "2020-04-15 10:24:02",
+      "text": "Мои филосовские цитаты мыслителей иногда оказываются совсем не цитатами",
+      "coordinates": {
+        "lat": 51.50851,
+        "lon": -0.12572
+      },
+      "pinned": false,
+      "favorite": false
+    },
+    {
+      "id": "2",
+      "user_id": "1",
+      "created_at": "2020-04-16 16:24:02",
+      "text": "НЛО прилетело и оставило эту запись здесь",
+      "coordinates": {
+        "lat": 37.238017,
+        "lon": -115.807157
+      },
+      "pinned": false,
+      "favorite": false
+    },
+    {
+      "id": "3",
+      "user_id": "1",
+      "created_at": "2020-04-16 16:54:02",
+      "picture": {
+        "name": "programming.jpg",
+        "id": "1"
+      },
+      "coordinates": {
+        "lat": 51.50851,
+        "lon": -0.12572
+      },
+      "pinned": false,
+      "favorite": false
+    },
+    {
+      "id": "4",
+      "user_id": "1",
+      "created_at": "2020-04-16 17:54:52",
+      "file": {
+        "name": "report.txt",
+        "id": "2"
+      },
+      "coordinates": {
+        "lat": 51.50851,
+        "lon": -0.12572
+      },
+      "pinned": true,
+      "favorite": false
+    },
+    {
+      "id": "5",
+      "user_id": "1",
+      "created_at": "2020-04-16 19:54:52",
+      "text": "Text post with the link: http://shorturl.at/AESZ5 . Doubled text post with the same link: https://shorturl.at/AESZ5 ",
+      "pinned": false,
+      "favorite": false
+    }
+  ]
+}
