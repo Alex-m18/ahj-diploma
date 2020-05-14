@@ -21,6 +21,41 @@ const app = new Koa();
 app.use(koaStatic('./users_files'));
 
 
+// Preflight
+// eslint-disable-next-line consistent-return
+app.use(async (ctx, next) => {
+  const headers = { 'Access-Control-Allow-Origin': '*' };
+  ctx.response.set({ ...headers });
+
+  const origin = ctx.request.get('Origin');
+  if (!origin) {
+    // eslint-disable-next-line no-return-await
+    return await next();
+  }
+
+  if (ctx.request.method !== 'OPTIONS') {
+    try {
+      return await next();
+    } catch (e) {
+      e.headers = { ...e.headers, ...headers };
+      throw e;
+    }
+  }
+  if (ctx.request.get('Access-Control-Request-Method')) {
+    ctx.response.set({
+      ...headers,
+      'Access-Control-Allow-Methods': 'GET, POST, DELETE',
+    });
+    if (ctx.request.get('Access-Control-Request-Headers')) {
+      ctx.response.set(
+        'Access-Control-Allow-Headers',
+        'Origin, X-Requested-With, Content-Type, Accept, Authorization',
+      );
+    }
+    ctx.response.status = 204;
+  }
+});
+
 // Run server
 const port = process.env.PORT || 7070;
 const server = http.createServer(app.callback());
