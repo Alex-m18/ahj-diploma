@@ -3,6 +3,7 @@
 const http = require('http');
 const Koa = require('koa');
 const koaStatic = require('koa-static');
+// const koaBody = require('koa-body');
 const SocketIO = require('socket.io');
 
 
@@ -20,6 +21,10 @@ if (!db.get('users').value()) setDefaultUser(db);
 const app = new Koa();
 app.use(koaStatic('./users_files'));
 
+// Koa body initialize
+// app.use(koaBody({
+//   urlencoded: true,
+// }));
 
 // Preflight
 // eslint-disable-next-line consistent-return
@@ -56,17 +61,18 @@ app.use(async (ctx, next) => {
   }
 });
 
+
 // Run server
 const port = process.env.PORT || 7070;
 const server = http.createServer(app.callback());
 const io = SocketIO(server, { cookie: true });
 const UserHandler = require('./UserHandler');
 
-io.use((socket, next) => {
-  if (socket.request.headers.cookie) return next();
-  next(new Error('Authentication error'));
-  return null;
-});
+// io.use((socket, next) => {
+//   if (socket.request.headers.cookie) return next();
+//   next(new Error('Authentication error'));
+//   return null;
+// });
 
 io.on('connection', (client) => {
   console.log('Client connected');

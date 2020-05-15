@@ -22,22 +22,25 @@ class UserHandler {
     this.io.on('newpost', this.onNewPost.bind(this));
     this.io.on('updatepost', this.onUpdatePost.bind(this));
 
-    this.authorize();
+    // this.authorize();
   }
 
-  authorize() {
-    const { cookie } = this.io.request.headers;
+  authorize(cookie) {
+    // const { cookie } = this.io.request.headers;
+    // console.log(this.io.request.headers);
+    // console.log(this.io.handshake.headers);
+    // const { cookie } = this.io.handshake.headers;
+    if (!cookie) return false;
     const sessionIDCookie = cookie.split(';')
       .find((item) => item.trim().startsWith('sessionID='));
-    if (!sessionIDCookie) return;
+    if (!sessionIDCookie) return false;
     const sessionID = sessionIDCookie.split('=')[1];
-    if (!sessionID) return;
-
+    if (!sessionID) return false;
     const userdb = this.db.get('users').find(
       (u) => u.sessions.find((s) => s.id === sessionID && Date.parse(s.expires) > Date.now()),
     );
     const user = userdb.value();
-    if (!user) return;
+    if (!user) return false;
 
     this.userdb = userdb;
     this.user = user;
@@ -50,6 +53,7 @@ class UserHandler {
     this.io.join(this.currentSession.id);
 
     console.log(`User '${user.name}' authorized`);
+    return true;
   }
 
   onRegister(data) {
@@ -89,7 +93,8 @@ class UserHandler {
 
   onLogin(data) {
     // console.log(data);
-    const { name, password } = data;
+    const { name, password, cookie } = data;
+    if (cookie && this.authorize(cookie)) return;
     const userdb = this.db.get('users').find({ name, password });
     const user = userdb.value();
     if (this.user && this.user.id === user.id) {
