@@ -25,7 +25,22 @@ export default class ChaosOrganizer {
     this.coordinatesForm = new CoordinatesForm(document.body);
     this.coordinatesForm.init();
 
+    // Create cookie if not exists
+    const sessionIDCookie = document.cookie.split(';')
+      .find((item) => item.trim().startsWith('sessionID='));
+    if (!sessionIDCookie) document.cookie = 'sessionID=0';
+
     // this.api = new API(this.url);
+
+    // const options = {
+    //   transportOptions: {
+    //     polling: {
+    //       extraHeaders: {
+    //         cookie: document.cookie,
+    //       },
+    //     },
+    //   },
+    // };
     this.io = new SocketIO(this.url);
 
     this.io.on('connect', () => {
@@ -41,10 +56,18 @@ export default class ChaosOrganizer {
     this.io.on('messages', this.onMessagesRecieved.bind(this));
     this.io.on('newpost', this.onNewPostRecieved.bind(this));
     this.io.on('updatepost', this.onUpdatePostRecieved.bind(this));
+
+    this.io.on('error', (data) => {
+      console.log(data);
+    });
+
+    this.login();
   }
 
-  login(data) {
-    this.io.emit('login', data);
+  login(data = {}) {
+    const d = data;
+    d.cookie = document.cookie;
+    this.io.emit('login', d);
   }
 
   onRegister(data) {
