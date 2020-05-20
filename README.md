@@ -18,17 +18,17 @@ AHJ. Chaos Organizer
 
 ## Архитектура
 
-Серверная часть расположена на ![Heroku](https://alex-m18-ahj-diploma.herokuapp.com/). Написана с использованием:
-* ![koa](https://koajs.com)
-* ![koa-static](https://github.com/koajs/static) (для отдачи клиенту мультимедиа и файлов)
-* ws (через библиотеку ![socket.io](https://github.com/socketio/socket.io))
-* ![lowdb](https://alex-m18.github.io/ahj-diploma/) (база данных)
+Серверная часть расположена на [Heroku](https://alex-m18-ahj-diploma.herokuapp.com/). Написана с использованием:
+* [koa](https://koajs.com)
+* [koa-static](https://github.com/koajs/static) (для отдачи клиенту мультимедиа и файлов)
+* ws (через библиотеку [socket.io](https://github.com/socketio/socket.io))
+* [lowdb](https://alex-m18.github.io/ahj-diploma/) (база данных)
 
-Клиентская часть развернута на ![github-pages](https://alex-m18.github.io/ahj-diploma/) через Appveyor. Использованы:
-* ![Webpack](https://webpack.js.org/)
-* ![Babel](https://github.com/babel/babel)
-* ![ESLint](https://eslint.org/)
-* ![Font-Awesome](https://fontawesome.com/icons?d=gallery)
+Клиентская часть развернута на [github-pages](https://alex-m18.github.io/ahj-diploma/) через Appveyor. Использованы:
+* [Webpack](https://webpack.js.org/)
+* [Babel](https://github.com/babel/babel)
+* [ESLint](https://eslint.org/)
+* [Font-Awesome](https://fontawesome.com/icons?d=gallery)
 
 ## Функции
 
