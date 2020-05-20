@@ -11,11 +11,11 @@ export default class PostWidget {
     this.video = options.video;
     this.file = options.file;
     this.picture = options.picture;
-    this.favorite = options.favorite;
 
     this.container = null;
     this.element = null;
     this.pinClickEventListeners = [];
+    this.favClickEventListeners = [];
     this.showMapClickEventListeners = [];
     this.fileClickEventListeners = [];
     this.pictureClickEventListeners = [];
@@ -30,6 +30,10 @@ export default class PostWidget {
     if (options.pinned) {
       this.enablePin();
       this.showPin();
+    }
+    if (options.favorite) {
+      this.enableFav();
+      this.showFav();
     }
   }
 
@@ -109,7 +113,7 @@ export default class PostWidget {
       this.pictureEl.classList.add('picture-content');
       this.pictureEl.setAttribute('data-name', this.picture.name);
       this.pictureEl.src = this.picture.src;
-      this.pictureEl.title = `Скачать ${this.picture.name}`;
+      this.pictureEl.title = `${this.picture.name}`;
       this.contentEl.append(this.pictureEl);
     }
 
@@ -122,14 +126,23 @@ export default class PostWidget {
     this.timeEl.textContent = formatDate(this.created_at);
     serviceAreaEl.append(this.timeEl);
 
+    const postButtons = document.createElement('div');
+    postButtons.classList.add('post-buttons');
+    serviceAreaEl.append(postButtons);
+
     this.pinEl = document.createElement('div');
     this.pinEl.classList.add('pin', 'hidden');
-    serviceAreaEl.append(this.pinEl);
+    postButtons.append(this.pinEl);
+    const pin = document.createElement('i');
+    pin.classList.add('fas', 'fa-thumbtack');
+    this.pinEl.append(pin);
 
+    this.favEl = document.createElement('div');
+    this.favEl.classList.add('star', 'hidden');
+    postButtons.append(this.favEl);
     const star = document.createElement('i');
-    star.classList.add('fas', 'fa-thumbtack');
-    this.pinEl.append(star);
-
+    star.classList.add('fas', 'fa-star');
+    this.favEl.append(star);
 
     if (this.coordinates) {
       this.coordsEl.textContent = `[${this.coordinates.lat}, ${this.coordinates.lon}]`;
@@ -145,11 +158,10 @@ export default class PostWidget {
     this.element.addEventListener('mouseenter', this.onMouseEnter.bind(this));
     this.element.addEventListener('mouseleave', this.onMouseLeave.bind(this));
     this.pinEl.addEventListener('click', this.onPinClick.bind(this));
+    this.favEl.addEventListener('click', this.onFavClick.bind(this));
     this.mapBtn.addEventListener('click', this.onShowMapClick.bind(this));
     if (this.file) this.fileEl.addEventListener('click', this.onFileClick.bind(this));
     if (this.picture) this.pictureEl.addEventListener('click', this.onPictureClick.bind(this));
-    // if (this.coordinates) {
-    // }
   }
 
   // #region Event listeners
@@ -163,6 +175,10 @@ export default class PostWidget {
 
   addPinClickEventListener(callback) {
     this.pinClickEventListeners.push(callback);
+  }
+
+  addFavClickEventListener(callback) {
+    this.favClickEventListeners.push(callback);
   }
 
   addShowMapClickEventListener(callback) {
@@ -189,6 +205,10 @@ export default class PostWidget {
     this.pinClickEventListeners.forEach((c) => c.call(null, this.id));
   }
 
+  onFavClick() {
+    this.favClickEventListeners.forEach((c) => c.call(null, this.id));
+  }
+
   onShowMapClick() {
     this.showMapClickEventListeners.forEach((c) => c.call(null, this.id));
   }
@@ -202,13 +222,21 @@ export default class PostWidget {
   }
   // #endregion
 
-  // #region Pin functions
+  // #region Pin & Fav functions
   showPin() {
     this.pinEl.classList.remove('hidden');
   }
 
+  showFav() {
+    this.favEl.classList.remove('hidden');
+  }
+
   hidePin() {
     this.pinEl.classList.add('hidden');
+  }
+
+  hideFav() {
+    this.favEl.classList.add('hidden');
   }
 
   enablePin() {
@@ -223,6 +251,18 @@ export default class PostWidget {
 
   get pinned() {
     return this.pinEl.classList.contains('enabled');
+  }
+
+  enableFav() {
+    this.favEl.classList.add('enabled');
+  }
+
+  disableFav() {
+    this.favEl.classList.remove('enabled');
+  }
+
+  get favorite() {
+    return this.favEl.classList.contains('enabled');
   }
   // #endregion
 

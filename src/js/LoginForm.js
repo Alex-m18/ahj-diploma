@@ -33,7 +33,7 @@ export default class LoginForm {
 
     const closeBtn = document.createElement('button');
     closeBtn.type = 'button';
-    closeBtn.classList.add('close');
+    closeBtn.classList.add('close', 'hidden');
     closeBtn.title = 'Отмена';
     closeBtn.textContent = 'x';
     header.append(closeBtn);
@@ -75,7 +75,7 @@ export default class LoginForm {
 
     const cancelBtn = document.createElement('button');
     cancelBtn.type = 'button';
-    cancelBtn.classList.add('close');
+    cancelBtn.classList.add('close', 'hidden');
     cancelBtn.textContent = 'Отмена';
     footer.append(cancelBtn);
     this.closeButtons.push(cancelBtn);
@@ -86,7 +86,7 @@ export default class LoginForm {
 
     this.registerBtn = document.createElement('button');
     this.registerBtn.type = 'button';
-    this.registerBtn.classList.add('btn-primary');
+    this.registerBtn.classList.add('btn-secondary');
     this.registerBtn.textContent = 'Зарегистрироваться';
     footer.append(this.registerBtn);
 
@@ -106,7 +106,7 @@ export default class LoginForm {
 
   onInput(evt) {
     this.clearValidation();
-    if (evt.code === 'Enter') this.loginBtn.dispatchEvent(new MouseEvent('click'));
+    if (evt.keyCode === 13) this.loginBtn.dispatchEvent(new MouseEvent('click'));
   }
 
   clearValidation() {

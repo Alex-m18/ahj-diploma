@@ -12,11 +12,15 @@ export default class ChaosOrganizerWidget {
     this.recordTimerID = null;
     this.recorder = null;
     this.pinClickEventListeners = [];
+    this.favClickEventListeners = [];
+    this.favClickEventListeners = [];
     this.showMapClickEventListeners = [];
     this.fileClickEventListeners = [];
     this.pictureClickEventListeners = [];
     this.logoutClickEventListeners = [];
     this.postCreatedEventListeners = [];
+    this.scrollTopListeners = [];
+    this.searchEventListeners = [];
   }
 
   init() {
@@ -34,6 +38,11 @@ export default class ChaosOrganizerWidget {
     this.userNameEl = document.createElement('div');
     this.userNameEl.classList.add('user-name');
     this.userAreaEl.append(this.userNameEl);
+
+    this.searchEl = document.createElement('input');
+    this.searchEl.classList.add('search');
+    this.searchEl.placeholder = 'Search...';
+    this.userAreaEl.append(this.searchEl);
 
     this.logoutBtn = document.createElement('div');
     this.logoutBtn.classList.add('user-logout');
@@ -122,18 +131,44 @@ export default class ChaosOrganizerWidget {
     cancelRecordSymb.classList.add('fas', 'fa-times');
     this.cancelRecordBtn.append(cancelRecordSymb);
 
+    // Drop area
+    this.dropArea = document.createElement('div');
+    this.dropArea.classList.add('drop-area');
+    this.element.append(this.dropArea);
+
+    const dropIcon = document.createElement('div');
+    dropIcon.classList.add('drop-icon');
+    this.dropArea.append(dropIcon);
+    const dropSymb = document.createElement('i');
+    dropSymb.classList.add('fas', 'fa-file');
+    dropIcon.append(dropSymb);
+
+    const dropText = document.createElement('div');
+    dropText.classList.add('drop-text');
+    dropText.textContent = 'DROP FILES HERE';
+    this.dropArea.append(dropText);
+
+
     // Form
     this.coordinatesForm = new CoordinatesForm(document.body);
     this.coordinatesForm.init();
 
     // Add event listeners
     this.inputEl.addEventListener('keyup', this.onInputKeyUp.bind(this));
+    this.searchEl.addEventListener('keyup', this.onSearchKeyUp.bind(this));
+    this.searchEl.addEventListener('focusin', this.onSearchFocusIn.bind(this));
     this.fileBtn.addEventListener('click', this.onFileBtnClick.bind(this));
     this.audioRecordBtn.addEventListener('click', this.onAudioRecordClick.bind(this));
     this.videoRecordBtn.addEventListener('click', this.onVideoRecordClick.bind(this));
     this.stopRecordBtn.addEventListener('click', this.onStopRecord.bind(this));
     this.cancelRecordBtn.addEventListener('click', this.onCancelRecord.bind(this));
     this.logoutBtn.addEventListener('click', this.onLogoutClick.bind(this));
+    this.timelineEl.addEventListener('scroll', this.onScroll.bind(this));
+
+    this.element.addEventListener('dragover', this.onDragOver.bind(this));
+    this.element.addEventListener('dragleave', this.onDragLeave.bind(this));
+    this.element.addEventListener('dragend', this.onDragLeave.bind(this));
+    this.element.addEventListener('drop', this.onDrop.bind(this));
   }
 
   initFileInputEl() {
@@ -155,6 +190,14 @@ export default class ChaosOrganizerWidget {
 
   addPostCreatedEventListener(callback) {
     this.postCreatedEventListeners.push(callback);
+  }
+
+  addScrollTopEventListener(callback) {
+    this.scrollTopListeners.push(callback);
+  }
+
+  addSearchEventListener(callback) {
+    this.searchEventListeners.push(callback);
   }
 
   onLogoutClick() {
@@ -181,6 +224,12 @@ export default class ChaosOrganizerWidget {
     const post = {};
     post[contentType] = { name: file.name, blob: file };
     this.createPost(post);
+  }
+
+  onScroll() {
+    if (this.timelineEl.scrollTop !== 0
+      || this.timelineEl.scrollHeight < this.timelineEl.clientHeight) return;
+    this.scrollTopListeners.forEach((c) => c.call(null));
   }
 
   onStartRecord() {
@@ -283,11 +332,44 @@ export default class ChaosOrganizerWidget {
       this.inputEl.value = '';
     }
   }
+
+  onSearchKeyUp(evt) {
+    if (evt.key === 'Enter') {
+      this.searchEventListeners.forEach((c) => c.call(null, this.searchEl.value));
+    }
+  }
+
+  onSearchFocusIn() {
+    this.searchEl.select();
+  }
+
+  onDragOver(event) {
+    event.preventDefault();
+    event.stopPropagation();
+    this.dropArea.classList.add('dragover');
+  }
+
+  onDragLeave(evt) {
+    if (evt && evt.target !== evt.currentTarget) return;
+    this.dropArea.classList.remove('dragover');
+  }
+
+  onDrop(event) {
+    event.preventDefault();
+    const files = Array.from(event.dataTransfer.files);
+    if (!files) return;
+    files.forEach((f) => this.onAddFile(f));
+    this.onDragLeave();
+  }
   // #endregion
 
   // #region Post event listeners
   addPinClickEventListener(callback) {
     this.pinClickEventListeners.push(callback);
+  }
+
+  addFavClickEventListener(callback) {
+    this.favClickEventListeners.push(callback);
   }
 
   addShowMapClickEventListener(callback) {
@@ -306,6 +388,10 @@ export default class ChaosOrganizerWidget {
     this.pinClickEventListeners.forEach((c) => c.call(null, id));
   }
 
+  onFavClick(id) {
+    this.favClickEventListeners.forEach((c) => c.call(null, id));
+  }
+
   onShowMapClick(id) {
     this.showMapClickEventListeners.forEach((c) => c.call(null, id));
   }
@@ -319,22 +405,38 @@ export default class ChaosOrganizerWidget {
   }
   // #endregion
 
-  update(posts) {
+  clearPosts() {
     this.posts.forEach((p) => p.remove());
+    this.posts.length = 0;
+  }
+
+  update(posts) {
+    this.clearPosts();
 
     posts.forEach((p) => { this.addPost(p); });
     this.scrollDown();
   }
 
   addPost(post) {
+    const firstVisiblePost = this.posts
+      .find((p) => p.element.offsetTop > this.timelineEl.scrollTop);
+    let offset;
+    if (firstVisiblePost) offset = firstVisiblePost.element.offsetTop - this.timelineEl.scrollTop;
+
     const newPost = new PostWidget(post);
     if (post.pinned) newPost.enablePin();
-    newPost.addMouseEnterEventListener(() => newPost.showPin());
+    if (post.favorite) newPost.enableFav();
+    newPost.addMouseEnterEventListener(() => {
+      newPost.showPin();
+      newPost.showFav();
+    });
     newPost.addMouseLeaveEventListener(() => {
       if (!newPost.pinned) newPost.hidePin();
+      if (!newPost.favorite) newPost.hideFav();
     });
 
     newPost.addPinClickEventListener(this.onPinClick.bind(this));
+    newPost.addFavClickEventListener(this.onFavClick.bind(this));
     newPost.addShowMapClickEventListener(this.onShowMapClick.bind(this));
     if (newPost.file) newPost.addFileClickEventListener(this.onFileClick.bind(this));
     if (newPost.picture) newPost.addPictureClickEventListener(this.onPictureClick.bind(this));
@@ -345,6 +447,8 @@ export default class ChaosOrganizerWidget {
     } else {
       this.insertPost(newPost);
     }
+
+    if (firstVisiblePost) this.timelineEl.scrollTop = firstVisiblePost.element.offsetTop - offset;
   }
 
   insertPost(post) {
@@ -352,9 +456,14 @@ export default class ChaosOrganizerWidget {
       .filter((p) => new Date(p.created_at) > new Date(post.created_at));
     if (!nextPosts.length) {
       this.timelineEl.append(post.element);
+      this.scrollDown();
     } else {
       this.timelineEl.insertBefore(post.element, nextPosts[0].element);
     }
+    this.posts.sort((a, b) => {
+      if (new Date(a.created_at) < new Date(b.created_at)) return -1;
+      return 1;
+    });
   }
 
   pinPost(id) {
@@ -371,6 +480,16 @@ export default class ChaosOrganizerWidget {
     post.disablePin();
 
     this.insertPost(post);
+  }
+
+  starPost(id) {
+    const post = this.getPost(id);
+    post.enableFav();
+  }
+
+  unstarPost(id) {
+    const post = this.getPost(id);
+    post.disableFav();
   }
 
   setUserName(name) {
