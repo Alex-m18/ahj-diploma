@@ -20,7 +20,7 @@ body {
   position: relative;
   display: flex;
   flex-flow: column nowrap;
-  min-width: 31rem;
+  /* min-width: 31rem; */
   padding: .5rem;
   box-sizing: border-box;
   height: 100%;
