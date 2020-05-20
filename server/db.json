@@ -11,6 +11,166 @@
     {
       "id": "1",
       "user_id": "1",
+      "created_at": "2020-01-18T15:24:57.617Z",
+      "pinned": false,
+      "favorite": true,
+      "text": "CONGRATULATIONS!!! YOU WIN!!!"
+    },
+    {
+      "id": "2",
+      "user_id": "1",
+      "created_at": "2020-01-18T15:25:09.297Z",
+      "pinned": false,
+      "favorite": false,
+      "text": "Lazy loading test 2"
+    },
+    {
+      "id": "3",
+      "user_id": "1",
+      "created_at": "2020-01-18T15:25:12.045Z",
+      "pinned": false,
+      "favorite": false,
+      "text": "Lazy loading test 3"
+    },
+    {
+      "id": "4",
+      "user_id": "1",
+      "created_at": "2020-01-18T15:25:16.949Z",
+      "pinned": false,
+      "favorite": false,
+      "text": "Lazy loading test 4"
+    },
+    {
+      "id": "5",
+      "user_id": "1",
+      "created_at": "2020-01-18T15:25:19.386Z",
+      "pinned": false,
+      "favorite": false,
+      "text": "Lazy loading test 5"
+    },
+    {
+      "id": "6",
+      "user_id": "1",
+      "created_at": "2020-01-18T15:25:22.084Z",
+      "pinned": false,
+      "favorite": false,
+      "text": "Lazy loading test 6"
+    },
+    {
+      "id": "7",
+      "user_id": "1",
+      "created_at": "2020-01-18T15:25:26.840Z",
+      "pinned": false,
+      "favorite": false,
+      "text": "Lazy loading test 7"
+    },
+    {
+      "id": "8",
+      "user_id": "1",
+      "created_at": "2020-01-18T15:25:28.861Z",
+      "pinned": false,
+      "favorite": false,
+      "text": "Lazy loading test 8"
+    },
+    {
+      "id": "9",
+      "user_id": "1",
+      "created_at": "2020-01-18T15:25:30.672Z",
+      "pinned": false,
+      "favorite": false,
+      "text": "Lazy loading test 9"
+    },
+    {
+      "id": "10",
+      "user_id": "1",
+      "created_at": "2020-01-18T15:25:32.716Z",
+      "pinned": false,
+      "favorite": false,
+      "text": "Lazy loading test 10"
+    },
+    {
+      "id": "11",
+      "user_id": "1",
+      "created_at": "2020-01-18T17:00:13.564Z",
+      "pinned": false,
+      "favorite": false,
+      "text": "Lazy loading test 11"
+    },
+    {
+      "id": "12",
+      "user_id": "1",
+      "created_at": "2020-01-18T17:00:18.642Z",
+      "pinned": false,
+      "favorite": false,
+      "text": "Lazy loading test 12"
+    },
+    {
+      "id": "13",
+      "user_id": "1",
+      "created_at": "2020-01-18T17:00:22.171Z",
+      "pinned": false,
+      "favorite": false,
+      "text": "Lazy loading test 13"
+    },
+    {
+      "id": "14",
+      "user_id": "1",
+      "created_at": "2020-01-18T17:00:26.409Z",
+      "pinned": false,
+      "favorite": false,
+      "text": "Lazy loading test 14"
+    },
+    {
+      "id": "15",
+      "user_id": "1",
+      "created_at": "2020-01-18T17:00:28.397Z",
+      "pinned": false,
+      "favorite": false,
+      "text": "Lazy loading test 15"
+    },
+    {
+      "id": "16",
+      "user_id": "1",
+      "created_at": "2020-01-18T17:00:30.579Z",
+      "pinned": false,
+      "favorite": false,
+      "text": "Lazy loading test 16"
+    },
+    {
+      "id": "17",
+      "user_id": "1",
+      "created_at": "2020-01-18T17:00:33.473Z",
+      "pinned": false,
+      "favorite": false,
+      "text": "Lazy loading test 17"
+    },
+    {
+      "id": "18",
+      "user_id": "1",
+      "created_at": "2020-01-18T17:00:35.648Z",
+      "pinned": false,
+      "favorite": false,
+      "text": "Lazy loading test 18"
+    },
+    {
+      "id": "19",
+      "user_id": "1",
+      "created_at": "2020-01-18T17:00:38.404Z",
+      "pinned": false,
+      "favorite": false,
+      "text": "Lazy loading test 19"
+    },
+    {
+      "id": "20",
+      "user_id": "1",
+      "created_at": "2020-01-18T17:00:40.369Z",
+      "pinned": false,
+      "favorite": false,
+      "text": "Lazy loading test 20"
+    },
+    {
+      "id": "21",
+      "user_id": "1",
       "created_at": "2020-04-15 10:24:02",
       "text": "Мои филосовские цитаты мыслителей иногда оказываются совсем не цитатами",
       "coordinates": {
@@ -21,7 +181,7 @@
       "favorite": false
     },
     {
-      "id": "2",
+      "id": "22",
       "user_id": "1",
       "created_at": "2020-04-16 16:24:02",
       "text": "НЛО прилетело и оставило эту запись здесь",
@@ -30,10 +190,10 @@
         "lon": -115.807157
       },
       "pinned": false,
-      "favorite": false
+      "favorite": true
     },
     {
-      "id": "3",
+      "id": "23",
       "user_id": "1",
       "created_at": "2020-04-16 16:54:02",
       "picture": {
@@ -48,7 +208,7 @@
       "favorite": false
     },
     {
-      "id": "4",
+      "id": "24",
       "user_id": "1",
       "created_at": "2020-04-16 17:54:52",
       "file": {
@@ -60,15 +220,15 @@
         "lon": -0.12572
       },
       "pinned": true,
-      "favorite": false
+      "favorite": true
     },
     {
-      "id": "5",
+      "id": "25",
       "user_id": "1",
       "created_at": "2020-04-16 19:54:52",
       "text": "Text post with the link: http://shorturl.at/AESZ5 . Doubled text post with the same link: https://shorturl.at/AESZ5 ",
       "pinned": false,
-      "favorite": false
+      "favorite": true
     }
   ]
 }

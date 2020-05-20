@@ -10,6 +10,7 @@ class UserHandler {
     this.userdb = null;
     this.user = null;
     this.currentSession = null;
+    this.filterString = '';
     this.init();
   }
 
@@ -17,19 +18,14 @@ class UserHandler {
     this.io.on('register', this.onRegister.bind(this));
     this.io.on('login', this.onLogin.bind(this));
     this.io.on('logout', this.onLogout.bind(this));
-    this.io.on('getcurrentuser', this.onGetCurrent.bind(this));
+    // this.io.on('getcurrentuser', this.onGetCurrent.bind(this));
     this.io.on('getmessages', this.onGetMessages.bind(this));
     this.io.on('newpost', this.onNewPost.bind(this));
     this.io.on('updatepost', this.onUpdatePost.bind(this));
-
-    // this.authorize();
+    this.io.on('filter', this.onFilter.bind(this));
   }
 
   authorize(cookie) {
-    // const { cookie } = this.io.request.headers;
-    // console.log(this.io.request.headers);
-    // console.log(this.io.handshake.headers);
-    // const { cookie } = this.io.handshake.headers;
     if (!cookie) return false;
     const sessionIDCookie = cookie.split(';')
       .find((item) => item.trim().startsWith('sessionID='));
@@ -50,7 +46,7 @@ class UserHandler {
     const { name, id } = this.user;
     this.io.emit('login', { success: true, user: { name, id, session: this.currentSession } });
 
-    this.io.join(this.currentSession.id);
+    this.io.join(this.user.name);
 
     console.log(`User '${user.name}' authorized`);
     return true;
@@ -129,9 +125,6 @@ class UserHandler {
   }
 
   closeSession() {
-    // this.user.sessions
-    //   .find((s) => s.id === this.currentSession)
-    //   .expires = new Date();
     this.currentSession.expires = new Date();
     this.db.write();
   }
@@ -143,35 +136,47 @@ class UserHandler {
       return;
     }
     console.log(`User '${this.user.name}' signed out`);
+    this.filterString = '';
     this.closeSession();
-    this.user = null;
-    this.userdb = null;
-    this.io.to(this.currentSession.id).emit('logout', { success: true });
     this.io.emit('logout', { success: true });
+    this.userdb = null;
     this.currentSession = null;
+    this.user = null;
   }
 
-  onGetCurrent(data) {
-    const { id } = data;
-    let user;
-    try {
-      user = this.getAuthorized(id).user;
-    } catch (e) {
-      this.io.emit('getcurrentuser', { success: false, error: e.message });
-      return;
-    }
-    delete user.password;
-    delete user.isAuthorized;
-    this.io.emit('getcurrentuser', { success: true, user });
-  }
+  // onGetCurrent(data) {
+  //   const { id } = data;
+  //   let user;
+  //   try {
+  //     user = this.getAuthorized(id).user;
+  //   } catch (e) {
+  //     this.io.emit('getcurrentuser', { success: false, error: e.message });
+  //     return;
+  //   }
+  //   delete user.password;
+  //   delete user.isAuthorized;
+  //   this.io.emit('getcurrentuser', { success: true, user });
+  // }
 
-  onGetMessages() {
+  onGetMessages(data) {
     if (!this.user) {
       this.io.emit('getmessages', { success: false, error: UserHandler.USER_NOT_AUTHORIZED });
+      return;
     }
 
-    const posts = this.db.get('posts').filter({ user_id: this.user.id }).value();
-    this.io.emit('messages', { success: true, posts });
+    let startIndex = 0;
+    const oldestPostID = data;
+    const userPosts = this.filteredPosts;
+    if (oldestPostID) {
+      startIndex = userPosts.indexOf(userPosts.find((p) => p.id === oldestPostID));
+    } else {
+      startIndex = userPosts.length - 1;
+    }
+    startIndex -= UserHandler.MESSAGE_PORTION - 1;
+    if (startIndex < 0) startIndex = 0;
+    const nextPosts = userPosts.slice(startIndex, startIndex + UserHandler.MESSAGE_PORTION);
+    nextPosts.forEach((p) => this.io.emit('newpost', { success: true, post: p }));
+    // this.io.emit('messages', { success: true, nextPosts });
   }
 
   onNewPost(data) {
@@ -206,11 +211,13 @@ class UserHandler {
       const newObj = {};
       newObj.id = uuid();
       newObj.name = obj.name || `Noname_${Date.now()}`;
-      fs.writeFile(
-        `${this.pubDir}/${newObj.id}`,
-        obj.blob,
-        () => console.log(`File '${newObj.name}' saved as ${newObj.id}`),
-      );
+      fs.mkdir(`${this.pubDir}/${newObj.id}`, () => {
+        fs.writeFile(
+          `${this.pubDir}/${newObj.id}/${newObj.name}`,
+          obj.blob,
+          () => console.log(`File '${newObj.name}' saved in ${newObj.id}`),
+        );
+      });
       return newObj;
     };
 
@@ -220,8 +227,11 @@ class UserHandler {
     if (file && file.blob) newPost.file = saveFile(file);
 
     this.db.get('posts').push(newPost).write();
-    this.io.emit('newpost', { success: true, post: newPost });
-    this.io.to(this.currentSession.id).emit('newpost', { success: true, post: newPost });
+
+    if (this.filteredPosts.indexOf(newPost) > -1) {
+      this.io.emit('newpost', { success: true, post: newPost });
+    }
+    this.io.to(this.user.name).emit('newpost', { success: true, post: newPost });
   }
 
   onUpdatePost(data) {
@@ -231,7 +241,7 @@ class UserHandler {
     const post = posts.find((p) => p.id === id);
     if (!post) return;
 
-    if (pinned) {
+    if (pinned && !post.pinned) { // ищем старый закрепленный пост и раскрепляем его
       const pinnedPost = posts.find((p) => p.pinned);
       if (pinnedPost) {
         pinnedPost.pinned = false;
@@ -244,7 +254,7 @@ class UserHandler {
               favorite: pinnedPost.favorite,
             },
           });
-        this.io.to(this.currentSession.id)
+        this.io.to(this.user.name)
           .emit('updatepost', {
             success: true,
             post: {
@@ -255,6 +265,7 @@ class UserHandler {
           });
       }
     }
+
     post.pinned = pinned || false;
     post.favorite = favorite || false;
     this.db.write();
@@ -268,7 +279,7 @@ class UserHandler {
           favorite: post.favorite,
         },
       });
-    this.io.to(this.currentSession.id)
+    this.io.to(this.user.name)
       .emit('updatepost', {
         success: true,
         post: {
@@ -277,6 +288,52 @@ class UserHandler {
           favorite: post.favorite,
         },
       });
+  }
+
+  onFilter(data) {
+    if (!this.user) {
+      this.io.emit('filter', { success: false, error: UserHandler.USER_NOT_AUTHORIZED });
+      return;
+    }
+    this.filterString = data;
+    this.onGetMessages();
+  }
+
+  get filteredPosts() {
+    const str = this.filterString;
+    const userPosts = this.db.get('posts').filter({ user_id: this.user.id }).value() || [];
+    if (str === '') return userPosts;
+
+    const filters = {
+      audio: 'audio',
+      video: 'video',
+      text: 'text',
+      pic: 'picture',
+      file: 'file',
+      fav: 'favorite',
+    };
+    let filter;
+    let text = str;
+    if (str[0] === '@') {
+      const firstSpaceIndex = str.indexOf(' ');
+      filter = (firstSpaceIndex > -1) ? str.slice(1, firstSpaceIndex) : str.slice(1);
+      text = (firstSpaceIndex > -1) ? str.slice(firstSpaceIndex + 1).trim() : '';
+    }
+    filter = filters[filter];
+    let posts = userPosts;
+
+    if (text !== '') {
+      posts = posts.filter((p) => {
+        if (p.text && p.text.toLowerCase().indexOf(text.toLowerCase()) > -1) return true;
+        let result = false;
+        ['audio', 'video', 'picture', 'file'].forEach((s) => {
+          if (p[s] && p[s].name.toLowerCase().indexOf(text.toLowerCase()) > -1) result = true;
+        });
+        return result;
+      });
+    }
+    if (filter) posts = posts.filter((p) => p[filter]);
+    return posts;
   }
 
   get(id) {
@@ -292,6 +349,8 @@ class UserHandler {
     return { user, userdb };
   }
 }
+
+UserHandler.MESSAGE_PORTION = 10;
 
 UserHandler.USERNAME_REQUIRE = 'Поле Имя обязательно для заполнения';
 UserHandler.PASSWORD_REQUIRE = 'Поле Пароль обязательно для заполнения';
