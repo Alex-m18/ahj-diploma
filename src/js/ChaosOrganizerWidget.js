@@ -150,7 +150,7 @@ export default class ChaosOrganizerWidget {
 
 
     // Form
-    this.coordinatesForm = new CoordinatesForm(document.body);
+    this.coordinatesForm = new CoordinatesForm(this.container);
     this.coordinatesForm.init();
 
     // Add event listeners

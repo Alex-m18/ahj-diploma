@@ -16,11 +16,12 @@ export default class ChaosOrganizer {
     this.posts = [];
   }
 
-  async init() {
-    this.loginForm = new LoginForm(document.body);
+  async init(container = document.body) {
+    this.container = container;
+    this.loginForm = new LoginForm(this.container);
     this.loginForm.init();
 
-    this.coordinatesForm = new CoordinatesForm(document.body);
+    this.coordinatesForm = new CoordinatesForm(this.container);
     this.coordinatesForm.init();
 
     // Create cookie if not exists
@@ -91,7 +92,7 @@ export default class ChaosOrganizer {
 
     if (this.widget) this.widget.unbindFromDOM();
     this.widget = new ChaosOrganizerWidget();
-    this.widget.bindToDOM(document.querySelector('#chaos-container'));
+    this.widget.bindToDOM(this.container);
     this.widget.init();
     this.widget.setUserName(this.user.name);
 

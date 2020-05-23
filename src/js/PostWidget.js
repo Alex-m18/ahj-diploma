@@ -81,6 +81,7 @@ export default class PostWidget {
       audioEl.classList.add('audio-content');
       audioEl.setAttribute('data-name', this.audio.name);
       audioEl.controls = true;
+      audioEl.playsinline = true;
       audioEl.src = this.audio.src;
       this.contentEl.append(audioEl);
     }
@@ -89,6 +90,7 @@ export default class PostWidget {
       videoEl.classList.add('video-content');
       videoEl.setAttribute('data-name', this.video.name);
       videoEl.controls = true;
+      videoEl.playsinline = true;
       videoEl.src = this.video.src;
       this.contentEl.append(videoEl);
     }
