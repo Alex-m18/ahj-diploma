@@ -139,6 +139,7 @@ class UserHandler {
     this.filterString = '';
     this.closeSession();
     this.io.emit('logout', { success: true });
+    this.io.leaveAll();
     this.userdb = null;
     this.currentSession = null;
     this.user = null;

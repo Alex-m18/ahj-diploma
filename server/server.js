@@ -86,6 +86,7 @@ io.on('connection', (client) => {
   client.on('disconnect', () => {
     let str;
     if (client.userHandler && client.userHandler.user) {
+      client.leaveAll();
       str = `User '${client.userHandler.user.name}'`;
     } else {
       str = 'Client';
