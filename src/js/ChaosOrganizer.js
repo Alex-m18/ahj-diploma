@@ -36,7 +36,14 @@ export default class ChaosOrganizer {
       }, 1000);
       this.connected = true;
     });
-    this.io.on('disconnect', () => { this.connected = false; });
+    this.io.on('disconnect', () => {
+      this.onLogout({ success: true });
+      this.connected = false;
+    });
+    this.io.on('reconnect', () => {
+      window.location.reload();
+      this.connected = true;
+    });
     this.io.on('register', this.onRegister.bind(this));
     this.io.on('login', this.onLogin.bind(this));
     this.io.on('logout', this.onLogout.bind(this));
