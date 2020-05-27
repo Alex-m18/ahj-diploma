@@ -1,3 +1,4 @@
+/* eslint-disable no-empty */
 /* eslint-disable no-alert */
 import PostWidget from './PostWidget';
 import CoordinatesForm from './CoordinatesForm';
@@ -93,34 +94,40 @@ export default class ChaosOrganizerWidget {
     fileSymb.classList.add('fas', 'fa-paperclip');
     this.fileBtn.append(fileSymb);
 
-    navigator.getUserMedia = navigator.getUserMedia
-      || navigator.webkitGetUserMedia
-      || navigator.mozGetUserMedia;
-
     if (
-      navigator.getUserMedia
-      && navigator.mediaDevices
-      && navigator.mediaDevices.enumerateDevices
+      navigator.mediaDevices
       && window.MediaRecorder
+      // && navigator.mediaDevices.enumerateDevices
     ) {
-      // const devices = await navigator.mediaDevices.enumerateDevices();
-      if (window.MediaRecorder.isTypeSupported('audio')) {
-        this.audioRecordBtn = document.createElement('span');
-        this.audioRecordBtn.classList.add('audio-rec-btn');
-        this.choiceBtnsEl.append(this.audioRecordBtn);
-        const audioRecordSymb = document.createElement('i');
-        audioRecordSymb.classList.add('fas', 'fa-microphone');
-        this.audioRecordBtn.append(audioRecordSymb);
-      }
-
-      if (window.MediaRecorder.isTypeSupported('video')) {
-        this.videoRecordBtn = document.createElement('span');
-        this.videoRecordBtn.classList.add('video-rec-btn');
-        this.choiceBtnsEl.append(this.videoRecordBtn);
-        const videoRecordSymb = document.createElement('i');
-        videoRecordSymb.classList.add('fas', 'fa-video');
-        this.videoRecordBtn.append(videoRecordSymb);
-      }
+    // const devices = await navigator.mediaDevices.enumerateDevices();
+      try {
+        const astream = await navigator.mediaDevices.getUserMedia({
+          audio: true,
+          video: false,
+        });
+        if (astream) {
+          this.audioRecordBtn = document.createElement('span');
+          this.audioRecordBtn.classList.add('audio-rec-btn');
+          this.choiceBtnsEl.append(this.audioRecordBtn);
+          const audioRecordSymb = document.createElement('i');
+          audioRecordSymb.classList.add('fas', 'fa-microphone');
+          this.audioRecordBtn.append(audioRecordSymb);
+        }
+      } catch (e) {}
+      try {
+        const vstream = await navigator.mediaDevices.getUserMedia({
+          audio: true,
+          video: true,
+        });
+        if (vstream) {
+          this.videoRecordBtn = document.createElement('span');
+          this.videoRecordBtn.classList.add('video-rec-btn');
+          this.choiceBtnsEl.append(this.videoRecordBtn);
+          const videoRecordSymb = document.createElement('i');
+          videoRecordSymb.classList.add('fas', 'fa-video');
+          this.videoRecordBtn.append(videoRecordSymb);
+        }
+      } catch (e) {}
     }
 
     // Record control buttons
@@ -177,7 +184,7 @@ export default class ChaosOrganizerWidget {
     if (this.audioRecordBtn) {
       this.audioRecordBtn.addEventListener('click', this.onAudioRecordClick.bind(this));
     }
-    if (this.audioRecordBtn) {
+    if (this.videoRecordBtn) {
       this.videoRecordBtn.addEventListener('click', this.onVideoRecordClick.bind(this));
     }
     this.stopRecordBtn.addEventListener('click', this.onStopRecord.bind(this));
@@ -284,10 +291,15 @@ export default class ChaosOrganizerWidget {
   }
 
   async onVideoRecordClick() {
-    try {
-      if (!ChaosOrganizerWidget.mediaIsAvailable) throw new Error();
+    if (!ChaosOrganizerWidget.mediaIsAvailable()) return;
 
-      const stream = await navigator.mediaDevices.getUserMedia({
+    try {
+      let getUserMedia = navigator.getUserMedia
+        || navigator.mozGetUserMedia
+        || navigator.webkitGetUserMedia;
+      getUserMedia = getUserMedia.bind(navigator);
+      // const stream = await navigator.mediaDevices.getUserMedia({
+      const stream = await getUserMedia({
         audio: true,
         video: true,
       });
@@ -313,13 +325,13 @@ export default class ChaosOrganizerWidget {
         return;
       }
       alert(`Ваш браузер не поддерживает данный функционал.
-Обновитесь или попробуйте другой современный браузер`);
-      // console.log(e);
+// Обновитесь или попробуйте другой современный браузер`);
+      console.log(e);
     }
   }
 
   async onAudioRecordClick() {
-    if (!ChaosOrganizerWidget.mediaIsAvailable) return;
+    if (!ChaosOrganizerWidget.mediaIsAvailable()) return;
 
     try {
       const stream = await navigator.mediaDevices.getUserMedia({
@@ -591,6 +603,8 @@ export default class ChaosOrganizerWidget {
 }
 
 ChaosOrganizerWidget.mediaIsAvailable = () => {
+  console.log(navigator.mediaDevices);
+  console.log(window.MediaRecorder);
   if (!navigator.mediaDevices || !window.MediaRecorder) {
     alert(`Ваш браузер не поддерживает данный функционал.
 Обновитесь или попробуйте другой современный браузер`);
