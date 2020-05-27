@@ -103,8 +103,8 @@ export default class ChaosOrganizerWidget {
       && navigator.mediaDevices.enumerateDevices
       && window.MediaRecorder
     ) {
-      const devices = await navigator.mediaDevices.enumerateDevices();
-      if (devices.find((o) => o.kind === 'audioinput')) {
+      // const devices = await navigator.mediaDevices.enumerateDevices();
+      if (window.MediaRecorder.isTypeSupported('audio')) {
         this.audioRecordBtn = document.createElement('span');
         this.audioRecordBtn.classList.add('audio-rec-btn');
         this.choiceBtnsEl.append(this.audioRecordBtn);
@@ -113,7 +113,7 @@ export default class ChaosOrganizerWidget {
         this.audioRecordBtn.append(audioRecordSymb);
       }
 
-      if (devices.find((o) => o.kind === 'videoinput')) {
+      if (window.MediaRecorder.isTypeSupported('video')) {
         this.videoRecordBtn = document.createElement('span');
         this.videoRecordBtn.classList.add('video-rec-btn');
         this.choiceBtnsEl.append(this.videoRecordBtn);
