@@ -113,7 +113,7 @@ export default class ChaosOrganizerWidget {
         this.audioRecordBtn.append(audioRecordSymb);
       }
 
-      if (devices.find((o) => o.kind === 'audioinput')) {
+      if (devices.find((o) => o.kind === 'videoinput')) {
         this.videoRecordBtn = document.createElement('span');
         this.videoRecordBtn.classList.add('video-rec-btn');
         this.choiceBtnsEl.append(this.videoRecordBtn);
