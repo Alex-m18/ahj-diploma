@@ -23,7 +23,7 @@ export default class ChaosOrganizerWidget {
     this.searchEventListeners = [];
   }
 
-  init() {
+  async init() {
     // Base element
     this.element = document.createElement('div');
     this.element.classList.add('chaos-widget');
@@ -93,19 +93,35 @@ export default class ChaosOrganizerWidget {
     fileSymb.classList.add('fas', 'fa-paperclip');
     this.fileBtn.append(fileSymb);
 
-    this.audioRecordBtn = document.createElement('span');
-    this.audioRecordBtn.classList.add('audio-rec-btn');
-    this.choiceBtnsEl.append(this.audioRecordBtn);
-    const audioRecordSymb = document.createElement('i');
-    audioRecordSymb.classList.add('fas', 'fa-microphone');
-    this.audioRecordBtn.append(audioRecordSymb);
+    navigator.getUserMedia = navigator.getUserMedia
+      || navigator.webkitGetUserMedia
+      || navigator.mozGetUserMedia;
 
-    this.videoRecordBtn = document.createElement('span');
-    this.videoRecordBtn.classList.add('video-rec-btn');
-    this.choiceBtnsEl.append(this.videoRecordBtn);
-    const videoRecordSymb = document.createElement('i');
-    videoRecordSymb.classList.add('fas', 'fa-video');
-    this.videoRecordBtn.append(videoRecordSymb);
+    if (
+      navigator.getUserMedia
+      && navigator.mediaDevices
+      && navigator.mediaDevices.enumerateDevices
+      && window.MediaRecorder
+    ) {
+      const devices = await navigator.mediaDevices.enumerateDevices();
+      if (devices.find((o) => o.kind === 'audioinput')) {
+        this.audioRecordBtn = document.createElement('span');
+        this.audioRecordBtn.classList.add('audio-rec-btn');
+        this.choiceBtnsEl.append(this.audioRecordBtn);
+        const audioRecordSymb = document.createElement('i');
+        audioRecordSymb.classList.add('fas', 'fa-microphone');
+        this.audioRecordBtn.append(audioRecordSymb);
+      }
+
+      if (devices.find((o) => o.kind === 'audioinput')) {
+        this.videoRecordBtn = document.createElement('span');
+        this.videoRecordBtn.classList.add('video-rec-btn');
+        this.choiceBtnsEl.append(this.videoRecordBtn);
+        const videoRecordSymb = document.createElement('i');
+        videoRecordSymb.classList.add('fas', 'fa-video');
+        this.videoRecordBtn.append(videoRecordSymb);
+      }
+    }
 
     // Record control buttons
     this.recordBtnsEl = document.createElement('div');
@@ -158,8 +174,12 @@ export default class ChaosOrganizerWidget {
     this.searchEl.addEventListener('keyup', this.onSearchKeyUp.bind(this));
     this.searchEl.addEventListener('focusin', this.onSearchFocusIn.bind(this));
     this.fileBtn.addEventListener('click', this.onFileBtnClick.bind(this));
-    this.audioRecordBtn.addEventListener('click', this.onAudioRecordClick.bind(this));
-    this.videoRecordBtn.addEventListener('click', this.onVideoRecordClick.bind(this));
+    if (this.audioRecordBtn) {
+      this.audioRecordBtn.addEventListener('click', this.onAudioRecordClick.bind(this));
+    }
+    if (this.audioRecordBtn) {
+      this.videoRecordBtn.addEventListener('click', this.onVideoRecordClick.bind(this));
+    }
     this.stopRecordBtn.addEventListener('click', this.onStopRecord.bind(this));
     this.cancelRecordBtn.addEventListener('click', this.onCancelRecord.bind(this));
     this.logoutBtn.addEventListener('click', this.onLogoutClick.bind(this));
